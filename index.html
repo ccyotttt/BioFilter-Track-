@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BioFilter-Track</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',sans-serif;
+}
+
+body{
+    background:#f4f7fb;
+}
+
+header{
+    background:linear-gradient(135deg,#0f4c81,#0b7fab);
+    color:white;
+    text-align:center;
+    padding:25px;
+}
+
+header h1{
+    font-size:2rem;
+}
+
+nav{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    padding:15px;
+    background:white;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+nav button{
+    padding:10px 20px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#0f4c81;
+    color:white;
+    font-weight:bold;
+}
+
+nav button:hover{
+    background:#0b7fab;
+}
+
+.page{
+    display:none;
+    padding:25px;
+}
+
+.active{
+    display:block;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom:20px;
+}
+
+input,select{
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+    margin-bottom:15px;
+    border:1px solid #ccc;
+    border-radius:8px;
+}
+
+.action-btn{
+    background:#28a745;
+    color:white;
+    border:none;
+    padding:10px 20px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.bar{
+    width:100%;
+    background:#ddd;
+    height:25px;
+    border-radius:20px;
+    overflow:hidden;
+    margin-top:15px;
+}
+
+.fill{
+    width:80%;
+    height:100%;
+    background:green;
+    transition:0.5s;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+table th{
+    background:#0f4c81;
+    color:white;
+}
+
+table th,table td{
+    border:1px solid #ddd;
+    padding:10px;
+    text-align:center;
+}
+
+.status{
+    margin-top:10px;
+    font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>BioFilter-Track</h1>
+<p>AI + Blockchain Waste Management System</p>
+</header>
+
+<nav>
+<button onclick="showPage('dashboard')">AI Predictor</button>
+<button onclick="showPage('ledger')">Blockchain Ledger</button>
+<button onclick="showPage('assistant')">Lab Assistant</button>
+</nav>
+
+<!-- Dashboard -->
+<div id="dashboard" class="page active">
+
+<div class="card">
+<h2>AI Prediction Module</h2>
+
+<label>ปริมาตรน้ำเสีย (L)</label>
+<input type="number" id="volume">
+
+<label>ค่า pH</label>
+<input type="number" id="ph" step="0.1">
+
+<label>ชนิดโลหะหนัก</label>
+<select id="metal">
+<option>Pb (Lead)</option>
+<option>Cd (Cadmium)</option>
+<option>Cu (Copper)</option>
+</select>
+
+<button class="action-btn" onclick="predict()">คำนวณ</button>
+
+<h3 style="margin-top:20px;" id="result">
+กรุณากรอกข้อมูล
+</h3>
+
+<div class="bar">
+<div class="fill" id="fill"></div>
+</div>
+
+<div class="status" id="status">
+สถานะ : ปลอดภัย
+</div>
+
+</div>
+
+</div>
+
+<!-- Ledger -->
+<div id="ledger" class="page">
+
+<div class="card">
+
+<h2>Blockchain Waste Ledger</h2>
+
+<table>
+<tr>
+<th>วันที่</th>
+<th>โลหะหนักที่กักเก็บ</th>
+<th>Hash Key</th>
+</tr>
+
+<tr>
+<td>30/05/2026</td>
+<td>145 mg Pb</td>
+<td>AB34F-89CC-91AA</td>
+</tr>
+
+<tr>
+<td>29/05/2026</td>
+<td>108 mg Cu</td>
+<td>FC92D-22AA-71BD</td>
+</tr>
+
+<tr>
+<td>28/05/2026</td>
+<td>87 mg Cd</td>
+<td>EE77B-11AF-90CC</td>
+</tr>
+
+</table>
+
+</div>
+
+</div>
+
+<!-- Assistant -->
+<div id="assistant" class="page">
+
+<div class="card">
+
+<h2>Smart Troubleshooting Assistant</h2>
+
+<select id="problem">
+
+<option value="gel">
+สารละลายไม่หนืด
+</option>
+
+<option value="shape">
+เม็ดเรซิ่นขึ้นรูปไม่สมบูรณ์
+</option>
+
+<option value="ph">
+ค่า pH ไม่คงที่
+</option>
+
+</select>
+
+<button class="action-btn" onclick="solveProblem()">
+ขอคำแนะนำ
+</button>
+
+<div style="margin-top:20px;" id="solution">
+
+เลือกปัญหาที่ต้องการแก้ไข
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+function showPage(page){
+
+document.querySelectorAll('.page').forEach(item=>{
+item.classList.remove('active');
+});
+
+document.getElementById(page).classList.add('active');
+
+}
+
+function predict(){
+
+let volume =
+parseFloat(document.getElementById('volume').value)||0;
+
+let score = Math.max(5,100-volume/10);
+
+document.getElementById('result').innerHTML =
+"ความจุการดูดซับคงเหลือ ≈ "
++ score.toFixed(1)
++ " mg/g";
+
+let fill = document.getElementById('fill');
+let status = document.getElementById('status');
+
+fill.style.width = score + "%";
+
+if(score > 60){
+
+fill.style.background = "green";
+status.innerHTML = "🟢 ปลอดภัย";
+
+}
+
+else if(score > 30){
+
+fill.style.background = "orange";
+status.innerHTML = "🟡 ใกล้อิ่มตัว";
+
+}
+
+else{
+
+fill.style.background = "red";
+status.innerHTML = "🔴 ควรเปลี่ยนชุดกรอง";
+
+}
+
+}
+
+function solveProblem(){
+
+let problem =
+document.getElementById('problem').value;
+
+let text="";
+
+if(problem=="gel"){
+
+text =
+"แนะนำให้เพิ่มสัดส่วนผงปอกล้วยบดละเอียด และปรับความเข้มข้นสารละลายด่าง";
+
+}
+
+else if(problem=="shape"){
+
+text =
+"แนะนำให้ปรับอัตราการหยดและเวลาการเกิดเจลเพื่อให้เม็ดเรซิ่นสมบูรณ์";
+
+}
+
+else{
+
+text =
+"แนะนำให้ตรวจสอบบัฟเฟอร์และปรับสารละลายควบคุมค่า pH";
+
+}
+
+document.getElementById('solution').innerHTML=text;
+
+}
+
+</script>
+
+</body>
+</html>
